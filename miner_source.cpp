@@ -27,16 +27,35 @@ int main() {
 	uint chainLen;
 	size_t startHash;
 	
-	printf("Block difficulty: ");
-	scanf("%hhu", &diff);
-	printf("Chain length: ");
-	scanf("%u", &chainLen);
+	do {
+		printf("Block difficulty: ");
+		scanf("%hhu", &diff);
+	} while (diff > 16);
+	do {
+		printf("Chain length: ");
+		scanf("%u", &chainLen);
+	} while (chainLen == 0);
 	printf("Starting hash: ");
 	scanf("%zu", &startHash);
-	printf("Thread count: ");
-	scanf("%hhu", &thrCount);
+	do {
+		printf("Thread count: ");
+		scanf("%hhu", &thrCount);
+	} while (thrCount < BC_MIN_THREAD_COUNT || thrCount > BC_MAX_THREAD_COUNT);
 	
-	
+	char str[32];
+	Block b(0, 0, startHash, 0, 0, 0);
+	clock_t processTimer = 0;
+	for (uint i = 0; i < chainLen; i++) {
+		b = Block(i, b.getSolvedHash(), diff);
+		startTimer();
+		threadMine(b, thrCount);
+		clock_t timeMined = lapTimer();
+		processTimer += timeMined;
+		int offset = msToTimeString(str, clockToMillis(timeMined));
+		printf("id=%03u  time-elapsed=%12s  hash=%016zx  nonce=%13zu\n", i, str + offset, b.getSolvedHash(), b.getNonce());
+	}
+	int offset = msToTimeString(str, clockToMillis(processTimer));
+	printf("program runtime: %s\n", str + offset);
 	
 	continueConsole(1);
 	return 0;
@@ -44,7 +63,7 @@ int main() {
 
 void threadMine(Block &block, uchar threadCount) {
 	nonceFound = false;
-	Array<std::thread> threadArr;
+	Array<std::thread> threadArr(threadCount);
 	uchar i = 0;
 	for (auto &thr : threadArr)
 		thr = std::thread(mineBlockTS, block, i++, threadCount);
