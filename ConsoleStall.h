@@ -47,7 +47,7 @@ int msToTimeString(char * str, size_t t) {
 	m = t % 60; t /= 60;
 	h = t % 24; t /= 24;
 	d = t;
-	sprintf_s(str, "%zu:%02u:%02u:%02u.%03u", d, h, m, s, ms);
+	sprintf(str, "%zu:%02u:%02u:%02u.%03u", d, h, m, s, ms);
 	int i, c;
 	for (i = c = 0; 1; i++) {
 		if (str[i] == ':' || str[i] == '.') {
