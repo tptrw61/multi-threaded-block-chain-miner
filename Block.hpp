@@ -78,7 +78,10 @@ public:
 
 };
 
-char mineBlock(Block &block, size_t nonceStart = 0, int nonceIncrement = 1, size_t nonceEnd = -1);
+//0 => no solution
+//1 => found solution (mined)
+//2 => solution already found (already mined)
+int mineBlock(Block &block, size_t nonceStart = 0, int nonceIncrement = 1, size_t nonceEnd = -1);
 
 #ifdef COMPARE_BLOCK_STRUCT
 class CompareBlock {

@@ -112,12 +112,14 @@ std::string Block::toString(bool abridged) const {
 
 
 
-char mineBlock(Block &block, size_t nonceStart, int nonceIncrement, size_t nonceEnd) {
+int mineBlock(Block &block, size_t nonceStart, int nonceIncrement, size_t nonceEnd) {
 	size_t i;
-	for (i = nonceStart; i <= nonceEnd; i++)
+	for (i = nonceStart; i <= nonceEnd; i++) {
 		if (block.isSolved())
-			return 'd';
+			return 2; //already done
 		else if (block.tryNonce(i))
-			break;
-	return i == block.getNonce() ? 's' : 'n';
+			return 1; //mined
+		if (i == nonceEnd)
+			return 0; //no solution
+	}
 };
