@@ -36,8 +36,7 @@ int main() {
 	printf("Thread count: ");
 	scanf("%hhu", &thrCount);
 	
-	for (bool &b : unsolvedArr)
-		b = false;
+	
 	
 	continueConsole(1);
 	return 0;
