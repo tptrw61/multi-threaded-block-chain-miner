@@ -13,7 +13,7 @@ using uint = unsigned int;
 
 //for multithreading
 std::mutex mtx;
-bool nonceFound;
+volatile bool nonceFound;
 size_t nonceVal;
 
 void threadMine(Block &block, uchar threadCount); 
