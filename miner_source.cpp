@@ -2,6 +2,7 @@
 #include <thread>
 #include <mutex>
 #include "ConsoleStall.h"
+#include "timer.hpp"
 #include "Array.hpp"
 #include "Block.hpp"
 
@@ -42,20 +43,18 @@ int main() {
 		scanf("%hhu", &thrCount);
 	} while (thrCount < BC_MIN_THREAD_COUNT || thrCount > BC_MAX_THREAD_COUNT);
 	
-	char str[32];
 	Block b(0, 0, startHash, 0, 0, 0);
-	clock_t processTimer = 0;
+	Timer processTimer, bt;
+	processTimer.start();
 	for (uint i = 0; i < chainLen; i++) {
 		b = Block(i, b.getSolvedHash(), diff);
-		startTimer();
+		bt.start();
 		threadMine(b, thrCount);
-		clock_t timeMined = lapTimer();
-		processTimer += timeMined;
-		int offset = msToTimeString(str, clockToMillis(timeMined));
-		printf("id=%03u  time-elapsed=%12s  hash=%016zx  nonce=%13zu\n", i, str + offset, b.getSolvedHash(), b.getNonce());
+		bt.end();
+		printf("id=%03u  time-elapsed=%12s  hash=%016zx  nonce=%13zu\n", i, bt.toString(Timer::MILLI, Timer::MINUTE).c_str(), b.getSolvedHash(), b.getNonce());
 	}
-	int offset = msToTimeString(str, clockToMillis(processTimer));
-	printf("program runtime: %s\n", str + offset);
+	processTimer.end();
+	printf("program runtime: %s\n", processTimer.toString(Timer::MILLI).c_str());
 	
 	continueConsole(1);
 	return 0;
