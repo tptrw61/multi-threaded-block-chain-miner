@@ -56,7 +56,6 @@ int main() {
 	processTimer.end();
 	printf("program runtime: %s\n", processTimer.toString(Timer::MILLI).c_str());
 	
-	continueConsole(1);
 	return 0;
 }
 
