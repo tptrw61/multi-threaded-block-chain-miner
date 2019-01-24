@@ -27,7 +27,7 @@ void setNonce(size_t nonce);
 int main(int argc, char ** argv) {
 
 	auto usageMsg = [argv] () -> int {
-		fprintf(stderr, "Usage: %s [-d DIFF(=4)] [-l CHAIN_LEN(=100)] [-h HASH(=0)] [-t THREAD_CT(=2)]\n", argv[0]);
+		fprintf(stderr, "Usage: %s [--help]|[[-d DIFF(=4)] [-l CHAIN_LEN(=100)] [-h HASH(=0)] [-t THREAD_CT(=2)]]\n", argv[0]);
 		fprintf(stderr, "\tThe order of the flags does not matter.\n");
 		fprintf(stderr, "\tVAR_NAME(=#): # is the default value of VAR_NAME.\n");
 		fprintf(stderr, "\tDIFF must be in the range 0..16 (inclusive). Larger values are harder.\n");
@@ -35,7 +35,17 @@ int main(int argc, char ** argv) {
 		fprintf(stderr, "\tCHAIN_LEN must be at least 1.\n\tHASH must be at least 0.\n");
 		return 1;
 	};
-
+	
+	if (argc == 2 && std::string(argv[1]).compare("--help") == 0) {
+		printf("Usage: %s [--help]|[[-d DIFF(=4)] [-l CHAIN_LEN(=100)] [-h HASH(=0)] [-t THREAD_CT(=2)]]\n", argv[0]);
+		printf("\tThe order of the flags does not matter.\n");
+		printf("\tVAR_NAME(=#): # is the default value of VAR_NAME.\n");
+		printf("\tDIFF must be in the range 0..16 (inclusive). Larger values are harder.\n");
+		printf("\tTHREAD_CT must be in range %d..%d (inclusive).\n", BC_MIN_THREAD_COUNT, BC_MAX_THREAD_COUNT);
+		printf("\tCHAIN_LEN must be at least 1.\n\tHASH must be at least 0.\n");
+		return 0;
+	}
+	
 	if ((argc - 1) % 2 == 1 || argc - 1 > 8) { // extra/missing argument. max of 8 args (4 flag-val pairs)
 		fprintf(stderr, "Error: invalid argument count (arguements must be in pairs, up to 4 pairs)\n");
 		return usageMsg();
