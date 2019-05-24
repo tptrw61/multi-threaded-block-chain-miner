@@ -6,12 +6,12 @@
 #include <sstream>
 #include <ostream>
 
-#pragma warning(disable:4244) 
+//#pragma warning(disable:4244) 
 
 /*
 Author: Timothy Williams
 Created On       : 10-14-2018
-Last Modified On : 12-22-2018
+Last Modified On : 05-24-2019
 */
 
 template<class T>
@@ -252,13 +252,14 @@ void Array<T>::sort(uintmax_t start, uintmax_t end) {
 		return;
 	if (start == end) //size == 1
 		return;
-	if (start == end - 1) //size == 2
+	if (start == end - 1) { //size == 2
 		if (arr[start] <= arr[end])
 			return;
 		else {
 			swap(arr[start], arr[end]);
 			return;
 		}
+	}
 	//pivot
 	uintmax_t lastSwap = (end + start) / 2;
 	if (arr[start] > arr[lastSwap])

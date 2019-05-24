@@ -174,7 +174,7 @@ std::string Timer::toString(size_t dur, TimeResolution resolution, TimeResolutio
             auto val = dur % divs[i];
             dur /= divs[i];
             std::string sv = std::to_string(val);
-            while (sv.length() < lens[i])
+            while (sv.length() < (unsigned)lens[i])
                 sv = "0" + sv;
             str = sv + str;
         }
