@@ -17,6 +17,8 @@ public:
     static const TimeResolution DEFAULT_RESOLUTION = MILLI;
     static const TimeResolution MIN_RESOLUTION = MICRO;
     static const TimeResolution MAX_RESOLUTION = DAY;
+
+    const bool ended = &m_ended;
     
     Timer();
     Timer(TimePoint start);

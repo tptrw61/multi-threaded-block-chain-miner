@@ -13,6 +13,6 @@ miner_source.o: miner_source.cpp ConsoleStall.h timer.hpp Array.hpp Block.hpp
 	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	$(RM) -f *.o
+	$(RM) *.o
 
 
