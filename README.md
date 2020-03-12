@@ -1,1 +1,1 @@
-multithreaded blockchain mining side project
+Multithreaded blockchain mining side project based off school project
