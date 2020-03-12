@@ -6,8 +6,10 @@
 #include "Array.hpp"
 #include "Block.hpp"
 
-#define BC_MIN_THREAD_COUNT 1
-#define BC_MAX_THREAD_COUNT 12
+#define GET_MAX_THREADS() std::thread::hardware_concurrency()
+const unsigned BC_MIN_THREAD_COUNT = 1;
+const unsigned BC_MAX_THREAD_COUNT = 
+	GET_MAX_THREADS() == 0 ? 2 : GET_MAX_THREADS();
 
 using uchar = unsigned char;
 using uint = unsigned int;
