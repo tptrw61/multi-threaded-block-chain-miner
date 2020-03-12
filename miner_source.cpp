@@ -10,11 +10,17 @@
 #include "Array.hpp"
 #include "Block.hpp"
 
-#define BC_MIN_THREAD_COUNT 1
-#define BC_MAX_THREAD_COUNT 12
+#define GET_MAX_THREADS() std::thread::hardware_concurrency()
+const unsigned BC_MIN_THREAD_COUNT = 1;
+const unsigned BC_MAX_THREAD_COUNT = GET_MAX_THREADS() == 0 ? BC_MIN_THREAD_COUNT : GET_MAX_THREADS();
 
 using uchar = unsigned int;
 using uint = unsigned int;
+
+constexpr uchar DEFAULT_DIFF = 4;
+constexpr size_t DEFAULT_HASH = 0;
+constexpr uint DEFAULT_LEN = 100;
+constexpr uchar DEFAULT_THREADS = 2;
 
 //for multithreading
 std::mutex mtx;
@@ -39,9 +45,14 @@ int main(int argc, char ** argv) {
 	sigemptyset(&act.sa_mask);
 	sigaction(SIGINT, &act, NULL);
 
-	uchar diff = 4, thrCount = 2;
-	uint chainLen = 100;
-	size_t startHash = 0;
+	uchar diff = DEFAULT_DIFF;
+	uchar thrCount;
+	if (BC_MAX_THREAD_COUNT >= DEFAULT_THREADS)
+		thrCount = DEFAULT_THREADS;
+	else
+		thrCount = BC_MAX_THREAD_COUNT;
+	uint chainLen = DEFAULT_LEN;
+	size_t startHash = DEFAULT_HASH;
 
 	parseArgs(argc, argv, &diff, &thrCount, &chainLen, &startHash);
 
@@ -72,15 +83,17 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 	auto helpMsg = [argv] (FILE *stream) {
 		fprintf(stream, "Usage: %s [-d diff_level] [-l chain_len] [[-h|H] hash] [-t thread_count]\n", argv[0]);
 		fprintf(stream, "\t-d\tsets the required number of leading zeros of the hash\n"
-				"\t\tdefault is 4, valid values range from 0 to 16\n");
+				"\t\tdefault is %hhu, valid values range from 0 to 16\n", DEFAULT_DIFF);
 		fprintf(stream, "\t-l\tsets the number of blocks in the chain\n"
-				"\t\tdefault is 100\n");
+				"\t\tdefault is %u\n", DEFAULT_LEN);
 		fprintf(stream, "\t-h\tsets the first block's hash value\n"
-				"\t\tdefault is 0\n");
+				"\t\tdefault is %zu\n", DEFAULT_HASH);
 		fprintf(stream, "\t-H\tidentical to -h except reads a hex value\n");
 		fprintf(stream, "\t-t\tsets the number of threads used\n"
-				"\t\tdefault is 2\n");
+				"\t\tdefault is %hhu, valid values range from %u to %u\n", DEFAULT_THREADS, BC_MIN_THREAD_COUNT, BC_MIN_THREAD_COUNT);
+		fprintf(stream, "\t-T\tgets the maximum number of threads the processor supports\n");
 	};
+	bool getThreads = false;
 	for (int i = 1; i < argc; i++) {
 		std::string opt = argv[i];
 		if (opt.compare("--help") == 0) {
@@ -98,6 +111,10 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 				fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);
 				helpMsg(stderr);
 				exit(1);
+			}
+			if (*diff > 16) {
+				fprintf(stderr, "%s: invalid difficulty: %s\n", argv[0], argv[i]);
+				helpMsg(stderr);
 			}
 		}
 		if (opt.compare("-l") == 0) {
@@ -151,7 +168,19 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 				helpMsg(stderr);
 				exit(1);
 			}
+			if (*thrCount < BC_MIN_THREAD_COUNT || *thrCount > BC_MAX_THREAD_COUNT) {
+				fprintf(stderr, "%s: invalid count: %s is not between %u and %u\n", argv[0], argv[i], BC_MIN_THREAD_COUNT, BC_MAX_THREAD_COUNT);
+				helpMsg(stderr);
+				exit(1);
+			}
 		}
+		if (opt.compare("-T") == 0) {
+			getThreads = true;
+		}
+	}
+	if (getThreads) {
+		printf("Max threads: %u\n", BC_MAX_THREAD_COUNT);
+		exit(0);
 	}
 }
 
