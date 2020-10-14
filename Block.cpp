@@ -122,4 +122,5 @@ int mineBlock(Block &block, size_t nonceStart, int nonceIncrement, size_t nonceE
 		if (i == nonceEnd)
 			return 0; //no solution
 	}
+	return 0;
 };
