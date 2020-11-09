@@ -14,7 +14,7 @@ Block::Block() {
 	this->nSol = 0;
 };
 
-Block::Block(unsigned id, size_t previousHash, unsigned difficulty) {
+Block::Block(unsigned id, ullint previousHash, unsigned difficulty) {
 	this->id = id;
 	this->difficulty = difficulty <= 16 ? difficulty : DEFAULT_DIFFICULTY;
 	this->previousHash = previousHash;
@@ -25,7 +25,7 @@ Block::Block(unsigned id, size_t previousHash, unsigned difficulty) {
 	this->threshold = DIFFICULTY_VALUES[difficulty];
 	this->nSol = 0;
 }
-Block::Block(unsigned id, size_t previousHash, size_t solvedHash, size_t nonce, clock_t timeCreated, clock_t timeSolved, unsigned difficulty) {
+Block::Block(unsigned id, ullint previousHash, ullint solvedHash, ullint nonce, clock_t timeCreated, clock_t timeSolved, unsigned difficulty) {
 	this->id = id;
 	this->previousHash = previousHash;
 	this->solvedHash = solvedHash;
@@ -41,8 +41,8 @@ bool Block::isSolved() const {
 	return timeSolved || nSol;
 };
 
-bool Block::tryNonce(size_t nonce) {
-	size_t attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+bool Block::tryNonce(ullint nonce) {
+	ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
 	if (attempt > this->threshold || this->nSol)
 		return 0;
 	if (timeSolved)
@@ -53,8 +53,8 @@ bool Block::tryNonce(size_t nonce) {
 	return 1;
 };
 
-bool Block::tryNonce(size_t nonce) const {
-	size_t attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+bool Block::tryNonce(ullint nonce) const {
+	ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
 	if (attempt > this->threshold || this->nSol)
 		return 0;
 	if (timeSolved)
@@ -80,9 +80,9 @@ void Block::setNoSolution() {
 
 unsigned Block::getId() const { return this->id; };
 unsigned Block::getDifficulty() const { return this->difficulty; };
-size_t Block::getPreviousHash() const { return this->previousHash; };
-size_t Block::getSolvedHash() const { return this->solvedHash; };
-size_t Block::getNonce() const { return this->nonce; };
+ullint Block::getPreviousHash() const { return this->previousHash; };
+ullint Block::getSolvedHash() const { return this->solvedHash; };
+ullint Block::getNonce() const { return this->nonce; };
 clock_t Block::getTimeCreated() const { return this->timeCreated; };
 clock_t Block::getTimeSolved() const { return this->timeSolved; };
 bool Block::hasNoSolution() const { return this->nSol; };
@@ -112,8 +112,8 @@ std::string Block::toString(bool abridged) const {
 
 
 
-int mineBlock(Block &block, size_t nonceStart, int nonceIncrement, size_t nonceEnd) {
-	size_t i;
+int mineBlock(Block &block, ullint nonceStart, int nonceIncrement, ullint nonceEnd) {
+	ullint i;
 	for (i = nonceStart; i <= nonceEnd; i++) {
 		if (block.isSolved())
 			return 2; //already done

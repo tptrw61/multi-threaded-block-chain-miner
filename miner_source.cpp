@@ -18,14 +18,14 @@ using uchar = unsigned int;
 using uint = unsigned int;
 
 constexpr uchar DEFAULT_DIFF = 4;
-constexpr size_t DEFAULT_HASH = 0;
+constexpr ullint DEFAULT_HASH = 0;
 constexpr uint DEFAULT_LEN = 100;
 constexpr uchar DEFAULT_THREADS = 2;
 
 //for multithreading
 std::mutex mtx;
 volatile bool nonceFound;
-size_t nonceVal;
+ullint nonceVal;
 
 uint I;
 Timer processTimer, bt;
@@ -33,10 +33,10 @@ struct sigaction act;
 
 void threadMine(Block &block, uchar threadCount); 
 void mineBlockTS(Block b, uchar threadNum, uchar threadCount);
-void setNonce(size_t nonce);
+void setNonce(ullint nonce);
 void sigintHandler(int n);
 
-void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainLen, size_t *startHash);
+void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainLen, ullint *startHash);
 
 int main(int argc, char ** argv) {
 
@@ -52,13 +52,13 @@ int main(int argc, char ** argv) {
 	else
 		thrCount = BC_MAX_THREAD_COUNT;
 	uint chainLen = DEFAULT_LEN;
-	size_t startHash = DEFAULT_HASH;
+	ullint startHash = DEFAULT_HASH;
 
 	parseArgs(argc, argv, &diff, &thrCount, &chainLen, &startHash);
 
 	printf("Block difficulty : %u\n", (uint)diff);
 	printf("Chain length     : %u\n", chainLen);
-	printf("Starting hash    : %zu\n", startHash);
+	printf("Starting hash    : %llu\n", startHash);
 	printf("Thread count     : %u ", (uint)thrCount);
 	fflush(stdout);
 	
@@ -70,7 +70,7 @@ int main(int argc, char ** argv) {
 		bt.start();
 		threadMine(b, thrCount);
 		bt.end();
-		printf("\nid=%03u  time-elapsed=%12s  hash=%016zx  nonce=%13zu ", I, bt.toString(Timer::MILLI, Timer::MINUTE).c_str(), b.getSolvedHash(), b.getNonce());
+		printf("\nid=%03u  time-elapsed=%12s  hash=%016llx  nonce=%13llu ", I, bt.toString(Timer::MILLI, Timer::MINUTE).c_str(), b.getSolvedHash(), b.getNonce());
 		fflush(stdout);
 	}
 	processTimer.end();
@@ -79,7 +79,7 @@ int main(int argc, char ** argv) {
 	return 0;
 }
 
-void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainLen, size_t *startHash) {
+void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainLen, ullint *startHash) {
 	auto helpMsg = [argv] (FILE *stream) {
 		fprintf(stream, "Usage: %s [-d diff_level] [-l chain_len] [[-h|H] hash] [-t thread_count]\n", argv[0]);
 		fprintf(stream, "\t-d\tsets the required number of leading zeros of the hash\n"
@@ -87,10 +87,10 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 		fprintf(stream, "\t-l\tsets the number of blocks in the chain\n"
 				"\t\tdefault is %u\n", DEFAULT_LEN);
 		fprintf(stream, "\t-h\tsets the first block's hash value\n"
-				"\t\tdefault is %zu\n", DEFAULT_HASH);
+				"\t\tdefault is %llu\n", DEFAULT_HASH);
 		fprintf(stream, "\t-H\tidentical to -h except reads a hex value\n");
 		fprintf(stream, "\t-t\tsets the number of threads used\n"
-				"\t\tdefault is %hhu, valid values range from %u to %u\n", DEFAULT_THREADS, BC_MIN_THREAD_COUNT, BC_MIN_THREAD_COUNT);
+				"\t\tdefault is %hhu, valid values range from %u to %u\n", DEFAULT_THREADS, BC_MIN_THREAD_COUNT, BC_MAX_THREAD_COUNT);
 		fprintf(stream, "\t-T\tgets the maximum number of threads the processor supports\n");
 	};
 	bool getThreads = false;
@@ -137,7 +137,7 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 				exit(1);
 			}
 			i++;
-			if (sscanf(argv[i], "%zu", startHash) != 1) {
+			if (sscanf(argv[i], "%llu", startHash) != 1) {
 				fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);
 				helpMsg(stderr);
 				exit(1);
@@ -150,7 +150,7 @@ void parseArgs(int argc, char **argv, uchar *diff, uchar *thrCount, uint *chainL
 				exit(1);
 			}
 			i++;
-			if (sscanf(argv[i], "%zx", startHash) != 1) {
+			if (sscanf(argv[i], "%llx", startHash) != 1) {
 				fprintf(stderr, "%s: invalid argument: %s\n", argv[0], argv[i]);
 				helpMsg(stderr);
 				exit(1);
@@ -199,7 +199,7 @@ void threadMine(Block &block, uchar threadCount) {
 }
 
 void mineBlockTS(Block b, uchar threadNum, uchar threadCount) {
-	for (size_t i = (size_t)threadNum; i <= (size_t)-1 && !nonceFound; i += threadCount) {
+	for (ullint i = (ullint)threadNum; i <= (ullint)-1 && !nonceFound; i += threadCount) {
 		if (b.tryNonce(i)) {
 			setNonce(i); //sets nonceVal and is mutex locked
 		}
@@ -209,7 +209,7 @@ void mineBlockTS(Block b, uchar threadNum, uchar threadCount) {
 	} 
 }
 
-void setNonce(size_t nonce) {
+void setNonce(ullint nonce) {
 	std::lock_guard<std::mutex> guard(mtx);
 	if (!nonceFound) {
 		nonceFound = true;

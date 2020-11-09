@@ -6,7 +6,9 @@
 
 #define DEFAULT_DIFFICULTY 3
 
-const size_t DIFFICULTY_VALUES[] = {
+using ullint = unsigned long long int;
+
+const ullint DIFFICULTY_VALUES[] = {
 	0xffffffffffffffff,
 	0x0fffffffffffffff,
 	0x00ffffffffffffff,
@@ -32,12 +34,12 @@ class Block {
 
 	unsigned id;
 	unsigned difficulty;
-	size_t previousHash;
-	size_t solvedHash;
-	size_t nonce;
+	ullint previousHash;
+	ullint solvedHash;
+	ullint nonce;
 	clock_t timeCreated;
 	clock_t timeSolved;
-	size_t threshold;
+	ullint threshold;
 	bool nSol; //no solutions, true only if the hash is impossible at current difficulty
 
 	static std::hash<std::string> hasher;
@@ -45,12 +47,12 @@ class Block {
 public:
 
 	Block();
-	Block(unsigned id, size_t previousHash, unsigned difficulty = DEFAULT_DIFFICULTY);
-	Block(unsigned id, size_t previousHash, size_t solvedHash, size_t nonce, clock_t timeCreated, clock_t timeSolved, unsigned difficulty = DEFAULT_DIFFICULTY);
+	Block(unsigned id, ullint previousHash, unsigned difficulty = DEFAULT_DIFFICULTY);
+	Block(unsigned id, ullint previousHash, ullint solvedHash, ullint nonce, clock_t timeCreated, clock_t timeSolved, unsigned difficulty = DEFAULT_DIFFICULTY);
 
 	bool isSolved() const;
-	bool tryNonce(size_t nonce);
-	bool tryNonce(size_t nonce) const;
+	bool tryNonce(ullint nonce);
+	bool tryNonce(ullint nonce) const;
 
 	bool operator==(Block) const;
 	bool operator!=(Block) const;
@@ -65,9 +67,9 @@ public:
 
 	unsigned getId() const;
 	unsigned getDifficulty() const;
-	size_t getPreviousHash() const;
-	size_t getSolvedHash() const;
-	size_t getNonce() const;
+	ullint getPreviousHash() const;
+	ullint getSolvedHash() const;
+	ullint getNonce() const;
 	clock_t getTimeCreated() const;
 	clock_t getTimeSolved() const;
 	bool hasNoSolution() const;
@@ -81,7 +83,7 @@ public:
 //0 => no solution
 //1 => found solution (mined)
 //2 => solution already found (already mined)
-int mineBlock(Block &block, size_t nonceStart = 0, int nonceIncrement = 1, size_t nonceEnd = -1);
+int mineBlock(Block &block, ullint nonceStart = 0, int nonceIncrement = 1, ullint nonceEnd = -1);
 
 #ifdef COMPARE_BLOCK_STRUCT
 class CompareBlock {
