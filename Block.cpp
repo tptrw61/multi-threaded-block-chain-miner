@@ -1,6 +1,7 @@
 #include "Block.hpp"
+#include <blake3.h>
 
-std::hash<std::string> Block::hasher;
+//std::hash<std::string> Block::hasher;
 
 Block::Block() {
 	this->id = 1;
@@ -42,7 +43,10 @@ bool Block::isSolved() const {
 };
 
 bool Block::tryNonce(ullint nonce) {
-	ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+	//ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+	ullint attempt;
+	std::string s = std::to_string(previousHash) + std::to_string(nonce);
+	HASH_TO_TYPE(s.c_str(), s.size(), attempt, ullint);
 	if (attempt > this->threshold || this->nSol)
 		return 0;
 	if (timeSolved)
@@ -54,7 +58,10 @@ bool Block::tryNonce(ullint nonce) {
 };
 
 bool Block::tryNonce(ullint nonce) const {
-	ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+	//ullint attempt = hasher(std::to_string(this->previousHash) + std::to_string(nonce));
+	ullint attempt;
+	std::string s = std::to_string(previousHash) + std::to_string(nonce);
+	HASH_TO_TYPE(s.c_str(), s.size(), attempt, ullint);
 	if (attempt > this->threshold || this->nSol)
 		return 0;
 	if (timeSolved)
@@ -73,7 +80,10 @@ bool Block::operator<(Block b) const { return this->id < b.id ? (this->nonce < b
 void Block::setNoSolution() {
 	if (timeSolved)
 		return;
-	this->solvedHash = hasher(std::to_string(previousHash));
+	ullint solvedHash;
+	std::string prevHash = std::to_string(previousHash);
+	HASH_TO_TYPE(prevHash.c_str(), prevHash.size(), solvedHash, ullint);
+	//this->solvedHash = hasher(std::to_string(previousHash));
 	this->timeSolved = clock();
 	this->nSol = 1;
 };

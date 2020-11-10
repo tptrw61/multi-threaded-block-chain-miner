@@ -42,7 +42,7 @@ class Block {
 	ullint threshold;
 	bool nSol; //no solutions, true only if the hash is impossible at current difficulty
 
-	static std::hash<std::string> hasher;
+	//static std::hash<std::string> hasher;
 
 public:
 
