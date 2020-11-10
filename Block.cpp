@@ -1,5 +1,5 @@
 #include "Block.hpp"
-#include <blake3.h>
+#include <blake3_quick.h>
 
 //std::hash<std::string> Block::hasher;
 
